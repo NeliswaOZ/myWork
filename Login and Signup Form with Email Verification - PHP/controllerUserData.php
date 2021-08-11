@@ -1,6 +1,7 @@
 <?php 
 session_start();
 require "connection.php";
+require 'PHPMailerAutoload.php';
 $email = "";
 $name = "";
 $errors = array();
@@ -26,23 +27,67 @@ if(isset($_POST['signup'])){
         $insert_data = "INSERT INTO usertable (name, email, password, code, status)
                         values('$name', '$email', '$encpass', '$code', '$status')";
         $data_check = mysqli_query($con, $insert_data);
-        if($data_check){
-            $subject = "Email Verification Code";
-            $message = "Your verification code is $code";
-            $sender = "From: Neliswa.Khumalo@za.ab-inbev.com";
-            if(mail($email, $subject, $message, $sender)){
-                $info = "We've sent a verification code to your email - $email";
-                $_SESSION['info'] = $info;
-                $_SESSION['email'] = $email;
-                $_SESSION['password'] = $password;
-                header('location: user-otp.php');
-                exit();
+
+
+            
+            // enter your credentials
+        
+            $mail = new PHPMailer;
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->Port = 587;
+            $mail->SMTPSecure = 'tls';
+            $mail->SMTPAuth = true;
+            $mail->CharSet = "UTF-8";
+            $mail->Username = "nnkhumalo96@gmail.com";
+            $mail->Password = "Neliswa96";
+
+            // enter your name to be shown
+            $mail->FromName = "nnkhumalo";
+            $mail->addAddress($email) ;
+            $mail->addReplyTo("Thatobenny2@gmail.com");
+
+            $mail->isHTML(true);
+
+            $mail->Subject='Otp';
+            $mail->Body='<h1 align=center >This is your OTP</h1>';
+           $mail->Body = "<p>Your verification code is $code </p>";
+
+            if(!$mail->send()){
+                echo "Mail failed";
+
             }else{
-                $errors['otp-error'] = "Failed while sending code!";
+
+                echo "mail sent ";
+
+                header('location: user-otp.php');
             }
-        }else{
-            $errors['db-error'] = "Failed while inserting data into database!";
-        }
+
+
+
+
+
+
+
+
+
+        // if($data_check){
+        //     $subject = "Email Verification Code";
+        //     $message = "Your verification code is $code";
+        //     $sender = "From:nnkhumalo96@gmail.com";
+        //     if(mail($email, $subject, $message, $sender)){
+        //         $info = "We've sent a verification code to your email - $email";
+        //         $_SESSION['info'] = $info;
+        //         $_SESSION['email'] = $email;
+        //         $_SESSION['password'] = $password;
+        //         header('location: user-otp.php');
+        //         exit();
+        //     }else{
+        //         $errors['otp-error'] = "Failed while sending code!";
+        //     }
+        // }else{
+        //     $errors['db-error'] = "Failed while inserting data into database!";
+        // }
     }
 
 }
@@ -114,7 +159,7 @@ if(isset($_POST['signup'])){
             if($run_query){
                 $subject = "Password Reset Code";
                 $message = "Your password reset code is $code";
-                $sender = "From: Neliswa.Khumalo@za.ab-inbev.com";
+                $sender = "From: nnkhumalo96@gmail.com";
                 if(mail($email, $subject, $message, $sender)){
                     $info = "We've sent a passwrod reset otp to your email - $email";
                     $_SESSION['info'] = $info;
